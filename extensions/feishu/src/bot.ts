@@ -177,6 +177,21 @@ function parseMessageContent(content: string, messageType: string): string {
       const { textContent } = parsePostContent(content);
       return textContent;
     }
+    if (messageType === "interactive") {
+      // Extract text content from interactive card (markdown)
+      // Interactive cards have structure: { data: { i18n_elements: [...] } }
+      if (parsed.data?.i18n_elements && Array.isArray(parsed.data.i18n_elements)) {
+        const texts: string[] = [];
+        for (const element of parsed.data.i18n_elements) {
+          if (element.text?.content) {
+            texts.push(element.text.content);
+          }
+        }
+        return texts.join("\n");
+      }
+      // Fallback to raw content
+      return content;
+    }
     return content;
   } catch {
     return content;
